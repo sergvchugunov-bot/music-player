@@ -6,12 +6,13 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-const MUSIC_DIR = path.join(__dirname, 'music');
+// Папка с музыкой – теперь public/music
+const MUSIC_DIR = path.join(__dirname, 'public', 'music');
 
-// подключаем сайт
+// Раздача статики сайта
 app.use(express.static('public'));
 
-// список треков
+// API для получения списка треков
 app.get('/api/songs', (req, res) => {
   if (!fs.existsSync(MUSIC_DIR)) return res.json([]);
 
@@ -31,13 +32,13 @@ app.get('/api/songs', (req, res) => {
   res.json(files);
 });
 
-// отдача музыки
+// Отдача музыкальных файлов
 app.get('/music/:name', (req, res) => {
   const file = path.join(MUSIC_DIR, req.params.name);
   res.sendFile(file);
 });
 
-// единый запуск сервера
+// Запуск сервера
 app.listen(PORT, () => {
   console.log(`Сервер запущен: http://localhost:${PORT}`);
 });
