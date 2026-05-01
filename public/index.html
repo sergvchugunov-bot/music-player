@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Music Player</title>
+
+<style>
+body {
+  background: #121212;
+  color: white;
+  font-family: Arial;
+  text-align: center;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  max-width: 400px;
+  margin: auto;
+}
+
+li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+li:hover {
+  background: #1db954;
+}
+
+button {
+  margin: 5px;
+  padding: 10px;
+}
+
+.controls {
+  margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎵 Мой плеер</h1>
+
+<ul id="list"></ul>
+
+<div class="controls">
+  <button onclick="prev()">⏮️</button>
+  <button onclick="playPause()">⏯️</button>
+  <button onclick="next()">⏭️</button>
+</div>
+
+<br>
+
+🔊 <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+
+<br><br>
+
+<audio id="player"></audio>
+
+<script>
+let songs = [];
+let current = 0;
+
+const list = document.getElementById('list');
+const player = document.getElementById('player');
+const volume = document.getElementById('volume');
+
+// загрузка списка
+fetch('/api/songs')
+.then(r => r.json())
+.then(data => {
+  songs = data;
+
+  songs.forEach((song, i) => {
+    const li = document.createElement('li');
+    li.textContent = song.replace(/\.[^/.]+$/, "");
+    li.onclick = () => playSong(i);
+    list.appendChild(li);
+  });
+});
+
+// play
+function playSong(i) {
+  current = i;
+  player.src = '/music/' + songs[current];
+  player.play();
+}
+
+// next / prev
+function next() {
+  current = (current + 1) % songs.length;
+  playSong(current);
+}
+
+function prev() {
+  current = (current - 1 + songs.length) % songs.length;
+  playSong(current);
+}
+
+function playPause() {
+  if (player.paused) player.play();
+  else player.pause();
+}
+
+// автопереход
+player.addEventListener('ended', next);
+
+// громкость
+volume.oninput = () => {
+  player.volume = volume.value;
+};
+</script>
+
+</body>
+</html>
