@@ -1,117 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Music Player</title>
-
-<style>
-body {
-  background: #121212;
-  color: white;
-  font-family: Arial;
-  text-align: center;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-  max-width: 400px;
-  margin: auto;
-}
-
-li {
-  padding: 10px;
-  cursor: pointer;
-}
-
-li:hover {
-  background: #1db954;
-}
-
-button {
-  margin: 5px;
-  padding: 10px;
-}
-
-.controls {
-  margin-top: 20px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой музыкальный плеер</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1e1e2f; color: white; text-align: center; padding: 20px; }
+        ul { list-style: none; padding: 0; }
+        li { margin: 10px; }
+        button { background: #ff7f50; border: none; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px; }
+        button:hover { background: #ff6347; }
+        audio { width: 100%; max-width: 500px; margin: 20px 0; }
+    </style>
 </head>
-
 <body>
+    <h1>🎵 Музыкальный плеер</h1>
+    <audio id="player" controls></audio>
+    <h2>Плейлист</h2>
+    <ul id="playlist"></ul>
+    <script>
+        // Список треков – просто добавь сюда свои файлы из папки music
+        const tracks = [
+            { title: "Песня 1", src: "music/song1.mp3" },
+            { title: "Песня 2", src: "music/song2.mp3" },
+            // Добавляй дальше:
+            // { title: "Название", src: "music/файл.mp3" }
+        ];
 
-<h1>🎵 Мой плеер</h1>
+        const player = document.getElementById('player');
+        const playlist = document.getElementById('playlist');
 
-<ul id="list"></ul>
+        function loadTrack(index) {
+            player.src = tracks[index].src;
+            player.play();
+        }
 
-<div class="controls">
-  <button onclick="prev()">⏮️</button>
-  <button onclick="playPause()">⏯️</button>
-  <button onclick="next()">⏭️</button>
-</div>
+        tracks.forEach((track, index) => {
+            const li = document.createElement('li');
+            const btn = document.createElement('button');
+            btn.textContent = track.title;
+            btn.addEventListener('click', () => loadTrack(index));
+            li.appendChild(btn);
+            playlist.appendChild(li);
+        });
 
-<br>
-
-🔊 <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-
-<br><br>
-
-<audio id="player"></audio>
-
-<script>
-let songs = [];
-let current = 0;
-
-const list = document.getElementById('list');
-const player = document.getElementById('player');
-const volume = document.getElementById('volume');
-
-// загрузка списка
-fetch('/api/songs')
-.then(r => r.json())
-.then(data => {
-  songs = data;
-
-  songs.forEach((song, i) => {
-    const li = document.createElement('li');
-    li.textContent = song.replace(/\.[^/.]+$/, "");
-    li.onclick = () => playSong(i);
-    list.appendChild(li);
-  });
-});
-
-// play
-function playSong(i) {
-  current = i;
-  player.src = '/music/' + songs[current];
-  player.play();
-}
-
-// next / prev
-function next() {
-  current = (current + 1) % songs.length;
-  playSong(current);
-}
-
-function prev() {
-  current = (current - 1 + songs.length) % songs.length;
-  playSong(current);
-}
-
-function playPause() {
-  if (player.paused) player.play();
-  else player.pause();
-}
-
-// автопереход
-player.addEventListener('ended', next);
-
-// громкость
-volume.oninput = () => {
-  player.volume = volume.value;
-};
-</script>
-
+        // Автозагрузка первого трека при открытии страницы
+        if (tracks.length > 0) {
+            player.src = tracks[0].src;
+        }
+    </script>
 </body>
 </html>
