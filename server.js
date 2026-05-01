@@ -6,10 +6,6 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log('Server running');
-});
-
 const MUSIC_DIR = path.join(__dirname, 'music');
 
 // подключаем сайт
@@ -19,11 +15,18 @@ app.use(express.static('public'));
 app.get('/api/songs', (req, res) => {
   if (!fs.existsSync(MUSIC_DIR)) return res.json([]);
 
-  const files = fs.readdirSync(MUSIC_DIR).filter(f =>
-    f.endsWith('.mp3') ||
-    f.endsWith('.flac') ||
-    f.endsWith('.m4a')
-  );
+  const allowedExtensions = [
+    '.mp3', '.wav', '.ogg', '.flac', '.aac',
+    '.m4a', '.wma', '.opus', '.webm', '.mid',
+    '.midi', '.aiff', '.aif', '.ape', '.dsf',
+    '.dff', '.mpc', '.spx', '.oga', '.amr',
+    '.3gp', '.ac3', '.ec3', '.mka'
+  ];
+
+  const files = fs.readdirSync(MUSIC_DIR).filter(f => {
+    const ext = path.extname(f).toLowerCase();
+    return allowedExtensions.includes(ext);
+  });
 
   res.json(files);
 });
@@ -34,6 +37,7 @@ app.get('/music/:name', (req, res) => {
   res.sendFile(file);
 });
 
+// единый запуск сервера
 app.listen(PORT, () => {
-  console.log(`http://localhost:${PORT}`);
+  console.log(`Сервер запущен: http://localhost:${PORT}`);
 });
