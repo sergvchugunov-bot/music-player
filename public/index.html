@@ -1873,24 +1873,23 @@
   { title: "N1nt3nd0 - Гив Ми Мани.mp3", url: "https://drive.google.com/uc?export=download&id=13dury_eAlZytHGdb_Rg9cMGwKRblVsmG" },
   { title: "N1NT3NDO feat. QП - И тебя уже.net.mp3", url: "https://drive.google.com/uc?export=download&id=1jtHM4xJoJ5qvPCJm0E6wc8FPRFKVHINK" }
 ]
-
-        const player = document.getElementById('player');
+const player = document.getElementById('player');
         const playlist = document.getElementById('playlist');
+
+        function loadTrack(index) {
+            player.src = '/proxy?url=' + encodeURIComponent(cloudTracks[index].url);
+            player.play();
+        }
 
         cloudTracks.forEach((track, index) => {
             const li = document.createElement('li');
             const btn = document.createElement('button');
             btn.textContent = track.title;
-            btn.addEventListener('click', () => {
-                // Используем прокси для обхода CORS
-                player.src = '/proxy?url=' + encodeURIComponent(track.url);
-                player.play();
-            });
+            btn.addEventListener('click', () => loadTrack(index));
             li.appendChild(btn);
             playlist.appendChild(li);
         });
 
-        // Автовыбор первого трека
         if (cloudTracks.length > 0) {
             player.src = '/proxy?url=' + encodeURIComponent(cloudTracks[0].url);
         }
