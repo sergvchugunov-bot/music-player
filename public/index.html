@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мой облачный плеер</title>
+    <title>Музыкальный плеер</title>
     <style>
         body { font-family: Arial, sans-serif; background: #1e1e2f; color: white; text-align: center; padding: 20px; }
         ul { list-style: none; padding: 0; }
@@ -20,8 +20,9 @@
     <ul id="playlist"></ul>
 
     <script>
-        // ⚡⚡⚡ ВСТАВЬТЕ СЮДА СКОПИРОВАННЫЙ МАССИВ ИЗ playlist_array.txt ⚡⚡⚡
+        // ВСТАВЬТЕ СЮДА ВАШ МАССИВ ИЗ playlist_array.txt (полностью, от [ до ])
         const cloudTracks = [
+           [
   { title: "CENTR - Что успеем (feat. Стриж   Fame).mp3", url: "https://drive.google.com/uc?export=download&id=1SJLKDtrr_-oekoBkCsMmONflQ17LMnDj" },
   { title: "CENTR - Okolo Kluba.mp3", url: "https://drive.google.com/uc?export=download&id=1rCDSev4xuu8z5ZBGEUwoo30nz1IEE3pV" },
   { title: "CENTR - Vsem Beregam (feat. Basta).mp3", url: "https://drive.google.com/uc?export=download&id=12m6Kru0CMck7Kf4HMUpRUJGQShtnuTT3" },
@@ -1871,30 +1872,29 @@
   { title: "N1NT3NDO - Интро.mp3", url: "https://drive.google.com/uc?export=download&id=1IfeGncMSJy_8_IcLch6ZwsATUNfkOhOm" },
   { title: "N1NT3NDO feat. QП - Ран Вася ран.mp3", url: "https://drive.google.com/uc?export=download&id=1eYvrUXHYNK5hTj-_9trk4RB58I-WhqpD" },
   { title: "N1nt3nd0 - Гив Ми Мани.mp3", url: "https://drive.google.com/uc?export=download&id=13dury_eAlZytHGdb_Rg9cMGwKRblVsmG" },
-  { title: "N1NT3NDO feat. QП - И тебя уже.net.mp3", url: "https://drive.google.com/uc?export=download&id=1jtHM4xJoJ5qvPCJm0E6wc8FPRFKVHINK" } }
+  { title: "N1NT3NDO feat. QП - И тебя уже.net.mp3", url: "https://drive.google.com/uc?export=download&id=1jtHM4xJoJ5qvPCJm0E6wc8FPRFKVHINK" }
         ];
 
         const player = document.getElementById('player');
         const playlist = document.getElementById('playlist');
 
-        function loadPlaylist() {
-            cloudTracks.forEach((track, index) => {
-                const li = document.createElement('li');
-                const btn = document.createElement('button');
-                btn.textContent = track.title;
-                btn.addEventListener('click', () => {
-                    player.src = track.url;
-                    player.play();
-                });
-                li.appendChild(btn);
-                playlist.appendChild(li);
+        cloudTracks.forEach((track, index) => {
+            const li = document.createElement('li');
+            const btn = document.createElement('button');
+            btn.textContent = track.title;
+            btn.addEventListener('click', () => {
+                // Используем прокси для обхода CORS
+                player.src = '/proxy?url=' + encodeURIComponent(track.url);
+                player.play();
             });
-            if (cloudTracks.length > 0) {
-                player.src = cloudTracks[0].url;
-            }
-        }
+            li.appendChild(btn);
+            playlist.appendChild(li);
+        });
 
-        loadPlaylist();
+        // Автовыбор первого трека
+        if (cloudTracks.length > 0) {
+            player.src = '/proxy?url=' + encodeURIComponent(cloudTracks[0].url);
+        }
     </script>
 </body>
 </html>

@@ -3,42 +3,27 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-
 const PORT = process.env.PORT || 3000;
 
-// *** ВАЖНО: путь к твоей папке music внутри public ***
-const MUSIC_DIR = path.join(__dirname, 'public', 'music');
+// Раздача статики (сайт)
+app.use(express.static(path.join(__dirname, 'public')));
 
-// раздача статики (HTML, CSS, JS)
-app.use(express.static('public'));
-
-// API-список всех аудиофайлов в папке
-app.get('/api/songs', (req, res) => {
-  if (!fs.existsSync(MUSIC_DIR)) return res.json([]);
-
-  const allowedExtensions = [
-    '.mp3', '.wav', '.ogg', '.flac', '.aac',
-    '.m4a', '.wma', '.opus', '.webm', '.mid',
-    '.midi', '.aiff', '.aif', '.ape', '.dsf',
-    '.dff', '.mpc', '.spx', '.oga', '.amr',
-    '.3gp', '.ac3', '.ec3', '.mka'
-  ];
-
-  const files = fs.readdirSync(MUSIC_DIR).filter(f => {
-    const ext = path.extname(f).toLowerCase();
-    return allowedExtensions.includes(ext);
-  });
-
-  res.json(files);
+// Прокси для обхода CORS Google Диска
+app.get('/proxy', async (req, res) => {
+    const url = req.query.url;
+    if (!url) return res.status(400).send('URL is required');
+    try {
+        const fetch = (await import('node-fetch')).default;
+        const response = await fetch(url);
+        if (!response.ok) return res.status(502).send('Upstream error');
+        res.setHeader('Content-Type', response.headers.get('content-type'));
+        response.body.pipe(res);
+    } catch (e) {
+        res.status(500).send('Proxy error');
+    }
 });
 
-// отдача конкретного файла по имени
-app.get('/music/:name', (req, res) => {
-  const file = path.join(MUSIC_DIR, req.params.name);
-  res.sendFile(file);
-});
-
-// старт сервера
+// Запуск
 app.listen(PORT, () => {
-  console.log(`Сервер запущен: http://localhost:${PORT}`);
+    console.log(`Сервер запущен: http://localhost:${PORT}`);
 });
